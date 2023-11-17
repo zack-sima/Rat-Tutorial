@@ -8,6 +8,7 @@
  * This function should return PWM_MAX if pwm > PWM_MAX, -PWM_MAX if pwm < -PWM_MAX, and pwm otherwise.
  */
 float limitPWM(float pwm) {
+
 	if (pwm > PWM_MAX) {
 		return PWM_MAX;
 	}
@@ -31,11 +32,11 @@ float limitPWM(float pwm) {
  */
 void setMotorRPWM(float pwm) {
 	if (pwm >= 0) {
-		TIM4->CCR4 = 0;
-		TIM4->CCR3 = (uint32_t) (limitPWM(pwm) * MAX_TIMER_COUNTS);
-	} else {
 		TIM4->CCR3 = 0;
 		TIM4->CCR4 = (uint32_t) (limitPWM(pwm) * MAX_TIMER_COUNTS);
+	} else {
+		TIM4->CCR4 = 0;
+		TIM4->CCR3 = (uint32_t) (limitPWM(-pwm) * MAX_TIMER_COUNTS);
 	}
 }
 
@@ -57,7 +58,7 @@ void setMotorLPWM(float pwm) {
 		TIM4->CCR1 = (uint32_t) (limitPWM(pwm) * MAX_TIMER_COUNTS);
 	} else {
 		TIM4->CCR1 = 0;
-		TIM4->CCR2 = (uint32_t) (limitPWM(pwm) * MAX_TIMER_COUNTS);
+		TIM4->CCR2 = (uint32_t) (limitPWM(-pwm) * MAX_TIMER_COUNTS);
 	}
 }
 

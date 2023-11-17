@@ -7,38 +7,19 @@
 #include "encoders.h"
 #include "motors.h"
 
-int angleError = 0;
-int oldAngleError = 0;
-float distanceError = 0;
-float oldDistanceError = 0;
-float kPw = 1;
-float kDw = 1;
-float kPx = 1;
-float kDx = 1;
-
 // These should get updated by your setPIDGoal functions
-int goalAngle = 0;
-int goalDistance = 0;
 
-void UpdatePID() {
-	angleError = goalAngle - (getLeftEncoderCounts() - getRightEncoderCounts());
-	float angleCorrection = kPw * angleError + kDw * (angleError - oldAngleError);
-	oldAngleError = angleError;
+//92 mm
+//3pi/360 = cm
+//cm --> Encoder Value
 
-	distanceError = goalDistance - (getLeftEncoderCounts() + getRightEncoderCounts()) / 2;
-	float distanceCorrection = kPx * distanceError + kDx * (distanceError - oldDistanceError);
-	oldDistanceError = distanceError;
-
-	setMotorLPWM(distanceCorrection + angleCorrection);
-	setMotorRPWM(distanceCorrection - angleCorrection);
-}
 void SysTickFunction(void) {
 	/*
 	 * Anything in this function body will be executed every millisecond.
 	 * Call you PID update function here.
 	 */
 
-	UpdatePID();
+	updatePID();
 
 
 	/*

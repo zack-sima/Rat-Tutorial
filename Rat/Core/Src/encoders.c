@@ -10,6 +10,7 @@
  */
 int16_t getRightEncoderCounts() {
 	return (int16_t) TIM1->CNT;
+
 }
 
 /*

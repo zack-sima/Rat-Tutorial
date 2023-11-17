@@ -4,6 +4,25 @@
 
 #include "main.h"
 #include "motors.h"
+#include <math.h>
+
+
+int angleError = 0;
+int oldAngleError = 0;
+float distanceError = 0;
+float oldDistanceError = 0;
+float kPw = .11;
+float kDw = .1;
+float kPx = .01;
+float kDx = .5;
+
+int goalAngle = 0;
+int goalDistanceEncoder = 0;
+
+const int INST_LEN = 8;
+int angleInstructions[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+int distanceInstructions[8] = {2000, 0, 630, 0, 1900, 0, 630, 0};
+int instructionIndex = -1;
 
 void resetPID() {
 	/*
@@ -15,6 +34,11 @@ void resetPID() {
 	 *
 	 * You should additionally set your distance and error goal values (and your oldDistanceError and oldAngleError) to zero.
 	 */
+	angleError = 0;
+	oldAngleError = 0;
+	distanceError = 0;
+	oldDistanceError = 0;
+	resetEncoders();
 }
 
 void updatePID() {
@@ -36,13 +60,42 @@ void updatePID() {
 	 * right encoder counts. Refer to pseudocode example document on the google drive for some pointers.
 	 */
 
+	if (PIDdone() && instructionIndex < INST_LEN - 1) {
+		instructionIndex++;
+		resetEncoders();
+		setPIDGoalA(angleInstructions[instructionIndex]);
+		setPIDGoalD(distanceInstructions[instructionIndex]);
+		if (instructionIndex == INST_LEN - 1) {
+			setPIDGoalA(0);
+			setPIDGoalD(0);
+		}
+	}
+
+	// These should get updated by your setPIDGoal function
+
+	angleError = goalAngle - (getLeftEncoderCounts() - getRightEncoderCounts());
+	float angleCorrection = kPw * angleError + kDw * (angleError - oldAngleError);
+	oldAngleError = angleError;
+
+	distanceError = goalDistanceEncoder - ((getLeftEncoderCounts() + getRightEncoderCounts()) / 2);
+	float distanceCorrection = kPx * distanceError + kDx * (distanceError - oldDistanceError);
+	oldDistanceError = distanceError;
+
+	setMotorLPWM(distanceCorrection + angleCorrection);
+	setMotorRPWM(distanceCorrection - angleCorrection);
+
+
 }
 
+float mmToEncoder(float mm) {
+	return mm / (360 * 30 * 3.14159265);
+}
 void setPIDGoalD(int16_t distance) {
 	/*
 	 * For assignment 3.1: this function does not need to do anything.
 	 * For assignment 3.2: this function should set a variable that stores the goal distance.
 	 */
+	goalDistanceEncoder = distance;
 }
 
 void setPIDGoalA(int16_t angle) {
@@ -50,15 +103,24 @@ void setPIDGoalA(int16_t angle) {
 	 * For assignment 3.1: this function does not need to do anything
 	 * For assignment 3.2: This function should set a variable that stores the goal angle.
 	 */
+	goalAngle = angle*460/90; //460 = pi/2
 }
 
-int8_t PIDdone(void) { // There is no bool type in C. True/False values are represented as 1 or 0.
+int myAbs(int a) {
+	if (a < 0) return -a;
+	return a;
+}
+int PIDdone() { // There is no bool type in C. True/False values are represented as 1 or 0.
 	/*
 	 * For assignment 3.1: this function does not need to do anything (your rat should just drive straight indefinitely)
 	 * For assignment 3.2:This function should return true if the rat has achieved the set goal. One way to do this by having updatePID() set some variable when
 	 * the error is zero (realistically, have it set the variable when the error is close to zero, not just exactly zero). You will have better results if you make
 	 * PIDdone() return true only if the error has been sufficiently close to zero for a certain number, say, 50, of SysTick calls in a row.
 	 */
+	if (myAbs(distanceError) < 25 && myAbs(angleError) < 25) {
 
-	return 1;
+		return 1;
+	} else {
+		return 0;
+	}
 }
