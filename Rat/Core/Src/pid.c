@@ -4,7 +4,6 @@
 
 #include "main.h"
 #include "motors.h"
-#include <math.h>
 
 
 int angleError = 0;
@@ -19,10 +18,7 @@ float kDx = .5;
 int goalAngle = 0;
 int goalDistanceEncoder = 0;
 
-const int INST_LEN = 8;
-int angleInstructions[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-int distanceInstructions[8] = {2000, 0, 630, 0, 1900, 0, 630, 0};
-int instructionIndex = -1;
+int hasPIDran = 0;
 
 void resetPID() {
 	/*
@@ -34,11 +30,14 @@ void resetPID() {
 	 *
 	 * You should additionally set your distance and error goal values (and your oldDistanceError and oldAngleError) to zero.
 	 */
+	goalDistanceEncoder = 0;
+	goalAngle = 0;
 	angleError = 0;
 	oldAngleError = 0;
 	distanceError = 0;
 	oldDistanceError = 0;
 	resetEncoders();
+	hasPIDran = 0;
 }
 
 void updatePID() {
@@ -60,17 +59,6 @@ void updatePID() {
 	 * right encoder counts. Refer to pseudocode example document on the google drive for some pointers.
 	 */
 
-	if (PIDdone() && instructionIndex < INST_LEN - 1) {
-		instructionIndex++;
-		resetEncoders();
-		setPIDGoalA(angleInstructions[instructionIndex]);
-		setPIDGoalD(distanceInstructions[instructionIndex]);
-		if (instructionIndex == INST_LEN - 1) {
-			setPIDGoalA(0);
-			setPIDGoalD(0);
-		}
-	}
-
 	// These should get updated by your setPIDGoal function
 
 	angleError = goalAngle - (getLeftEncoderCounts() - getRightEncoderCounts());
@@ -83,7 +71,7 @@ void updatePID() {
 
 	setMotorLPWM(distanceCorrection + angleCorrection);
 	setMotorRPWM(distanceCorrection - angleCorrection);
-
+	hasPIDran++;
 
 }
 
@@ -103,7 +91,7 @@ void setPIDGoalA(int16_t angle) {
 	 * For assignment 3.1: this function does not need to do anything
 	 * For assignment 3.2: This function should set a variable that stores the goal angle.
 	 */
-	goalAngle = angle*460/90; //460 = pi/2
+	goalAngle = angle*460*(1.20)/90; //460 = pi/2
 }
 
 int myAbs(int a) {
@@ -117,10 +105,10 @@ int PIDdone() { // There is no bool type in C. True/False values are represented
 	 * the error is zero (realistically, have it set the variable when the error is close to zero, not just exactly zero). You will have better results if you make
 	 * PIDdone() return true only if the error has been sufficiently close to zero for a certain number, say, 50, of SysTick calls in a row.
 	 */
-	if (myAbs(distanceError) < 25 && myAbs(angleError) < 25) {
-
-		return 1;
-	} else {
-		return 0;
+	while(1) {
+		if (myAbs(distanceError) < 25 && myAbs(angleError) < 25 && hasPIDran > 3) {
+			resetPID();
+			return 0;
+			}
+		}
 	}
-}
