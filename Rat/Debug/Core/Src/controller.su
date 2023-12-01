@@ -1,2 +1,7 @@
+<<<<<<< Updated upstream
 ../Core/Src/controller.c:12:6:move	16	static
 ../Core/Src/controller.c:28:6:turn	16	static
+=======
+../Core/Src/controller.c:12:6:move	24	static
+../Core/Src/controller.c:34:6:turn	16	static
+>>>>>>> Stashed changes

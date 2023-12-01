@@ -4,25 +4,36 @@
 
 #include "main.h"
 #include "motors.h"
+<<<<<<< Updated upstream
 #include <math.h>
+=======
+#include "encoders.h"
+>>>>>>> Stashed changes
 
 
 int angleError = 0;
 int oldAngleError = 0;
 float distanceError = 0;
 float oldDistanceError = 0;
-float kPw = .11;
+float kPw = .1;
 float kDw = .1;
 float kPx = .01;
 float kDx = .5;
 
+int rolloverDistanceError = 0;
+int rolloverAngleError = 0;
 int goalAngle = 0;
 int goalDistanceEncoder = 0;
 
+<<<<<<< Updated upstream
 const int INST_LEN = 8;
 int angleInstructions[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 int distanceInstructions[8] = {2000, 0, 630, 0, 1900, 0, 630, 0};
 int instructionIndex = -1;
+=======
+int hasPIDran;
+int PIDfinished;
+>>>>>>> Stashed changes
 
 void resetPID() {
 	/*
@@ -39,6 +50,11 @@ void resetPID() {
 	distanceError = 0;
 	oldDistanceError = 0;
 	resetEncoders();
+<<<<<<< Updated upstream
+=======
+	hasPIDran = 0;
+	PIDfinished = 0;
+>>>>>>> Stashed changes
 }
 
 void updatePID() {
@@ -84,6 +100,12 @@ void updatePID() {
 	setMotorLPWM(distanceCorrection + angleCorrection);
 	setMotorRPWM(distanceCorrection - angleCorrection);
 
+<<<<<<< Updated upstream
+=======
+	if (myAbs(distanceError) < 25 && myAbs(angleError) < 25) {
+		hasPIDran++;
+	}
+>>>>>>> Stashed changes
 
 }
 
@@ -95,7 +117,8 @@ void setPIDGoalD(int16_t distance) {
 	 * For assignment 3.1: this function does not need to do anything.
 	 * For assignment 3.2: this function should set a variable that stores the goal distance.
 	 */
-	goalDistanceEncoder = distance;
+	rolloverAngleError = 0;
+	goalDistanceEncoder = distance;// + rolloverDistanceError;
 }
 
 void setPIDGoalA(int16_t angle) {
@@ -103,7 +126,11 @@ void setPIDGoalA(int16_t angle) {
 	 * For assignment 3.1: this function does not need to do anything
 	 * For assignment 3.2: This function should set a variable that stores the goal angle.
 	 */
+<<<<<<< Updated upstream
 	goalAngle = angle*460/90; //460 = pi/2
+=======
+	goalAngle = angle*465/90 + rolloverAngleError; //460 = pi/2
+>>>>>>> Stashed changes
 }
 
 int myAbs(int a) {
@@ -117,10 +144,28 @@ int PIDdone() { // There is no bool type in C. True/False values are represented
 	 * the error is zero (realistically, have it set the variable when the error is close to zero, not just exactly zero). You will have better results if you make
 	 * PIDdone() return true only if the error has been sufficiently close to zero for a certain number, say, 50, of SysTick calls in a row.
 	 */
+<<<<<<< Updated upstream
 	if (myAbs(distanceError) < 25 && myAbs(angleError) < 25) {
 
 		return 1;
 	} else {
 		return 0;
 	}
+=======
+	while(1) {
+		if (myAbs(distanceError) < 25 && myAbs(angleError) < 10 && PIDfinished == 1) {
+			//rolloverDistanceError = distanceError;
+			rolloverAngleError = angleError;
+			resetPID();
+			return 0;
+			}
+		}
+	}
+
+int PIDrest() {
+	if (hasPIDran > 1) {
+		PIDfinished = 1;
+	}
+	return 0;
+>>>>>>> Stashed changes
 }

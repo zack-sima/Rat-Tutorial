@@ -21,6 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "controller.h"
 #include "encoders.h"
 #include "motors.h"
 /* USER CODE END Includes */
@@ -117,11 +118,85 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+<<<<<<< Updated upstream
   while (1)
   {
 	  //**NOTE: right and left inverted**
 	  left_counts = getLeftEncoderCounts();
 	  right_counts = getRightEncoderCounts();
+=======
+
+  for (int j = 0; j < 10; j++) {
+	  for (int i = 0; i < 1000000; i++){
+		  i = i;
+	  }
+  }
+	const int INST_LEN = 8;
+	  int angleInstructions[8] = {0, 0, 0, 0, 0, 0, 0, 0}; //angle
+	  int distanceInstructions[8] = {0,0,0,0,0, 0, 0, 0}; //cell counts
+	  for(int i = 0; i < INST_LEN; i++){
+		  move(distanceInstructions[i]);
+		  turn(angleInstructions[i]);
+	  }
+
+int currentDir = 0; //starting angle
+  while (1)
+  {
+	  ir_right = readRightIR();
+	  ir_frontright = readFrontRightIR();
+	  ir_frontleft = readFrontLeftIR();
+	  ir_left = readLeftIR();
+>>>>>>> Stashed changes
+
+	  //**NOTE: right and left inverted**
+	 // left_counts = getLeftEncoderCounts();
+	 // right_counts = getRightEncoderCounts();
+
+
+	  if (ir_left > 1000 && (ir_frontright+ir_frontleft)/2 > 1000 && ir_right > 1000) {
+		  turn(90);
+		  turn(90);
+		  currentDir += 2;
+	  } else if (ir_left > 1000 && (ir_frontright+ir_frontleft)/2 > 1000) {
+		  turn(90);
+		  move(1);
+		  currentDir += 1;
+	  } else if ((ir_frontright+ir_frontleft)/2 > 1000 && ir_right > 1000) {
+		  turn(-90);
+		  move(1);
+		  currentDir += 3; //3 -> 270 == -90
+	  } else if ((ir_frontright+ir_frontleft)/2 > 1000){
+		 turn(-90);
+		 move(1);
+		 currentDir += 3;
+	  } else if(ir_left < 1000) {
+		 turn(-90);
+		 move(1);
+		 currentDir += 3;
+	  } else {
+		 move(1);
+
+	  }
+
+
+//
+//	  if (ir_left < 1000) {
+//		turn(-90);
+//		move(1);
+//			if ((ir_frontright+ir_frontleft)/2 < 1000) {
+//				move(1);
+//			} else {
+//				turn(90);
+//			}
+//	  } else if ((ir_frontright+ir_frontleft)/2 < 1000) {
+//		  move(1);
+//	  }
+//
+
+//	  	  ir_right = readIR(IR_RIGHT);
+//	  	  ir_frontright = readIR(IR_FRONT_RIGHT);
+//	  	  ir_frontleft = readIR(IR_FRONT_LEFT);
+//	  	  ir_left = readIR(IR_LEFT);
 
     /* USER CODE END WHILE */
 

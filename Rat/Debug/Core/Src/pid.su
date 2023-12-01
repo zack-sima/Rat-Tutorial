@@ -1,5 +1,16 @@
+<<<<<<< Updated upstream
 ../Core/Src/pid.c:8:6:resetPID	4	static
 ../Core/Src/pid.c:20:6:updatePID	4	static
 ../Core/Src/pid.c:41:6:setPIDGoalD	16	static
 ../Core/Src/pid.c:48:6:setPIDGoalA	16	static
 ../Core/Src/pid.c:55:8:PIDdone	4	static
+=======
+../Core/Src/pid.c:27:6:resetPID	8	static
+../Core/Src/pid.c:48:6:updatePID	24	static
+../Core/Src/pid.c:86:7:mmToEncoder	16	static
+../Core/Src/pid.c:89:6:setPIDGoalD	16	static
+../Core/Src/pid.c:98:6:setPIDGoalA	16	static
+../Core/Src/pid.c:106:5:myAbs	16	static
+../Core/Src/pid.c:110:5:PIDdone	8	static
+../Core/Src/pid.c:127:5:PIDrest	4	static
+>>>>>>> Stashed changes
